@@ -1,0 +1,292 @@
+#: import icon kivy.garden.iconfonts.icon
+#: import Factory kivy.factory.Factory
+
+<AboutView@ModalView>:
+    size_hint: (.6,.6)
+    Label:
+        text: '[b][size=32]Photo Viewer[/size][/b]\nv0.01\nA Photo Viweing Program\n\nLicence: [color=#0000FF]Apache 2.0[/color]'
+        markup: True
+        halign: 'center'
+        valign: 'middle'
+<CreditView@ModalView>:
+    size_hint: (.6,.6)
+    Label:
+        text: '[b][size=28]Samuel Mthembo[/size][/b]\nTawanda.samuelson@gmail.com\nA Photo Viweing Program\n\nGithub: [color=#0000FF]https://www.github.com/Silverh4sh[/color]'
+        markup: True
+        halign: 'center'
+        valign: 'middle'
+<OpenFile@ModalView>:
+    size_hint: (.9,.9)
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            id: chosen_file
+            size_hint_y: .05
+            TextInput:
+                id: choose_file
+                size_hint_x: .8
+                text: file_chooser.path
+            Button:
+                id: submit
+                text: 'Open File'
+                size_hint_x: .2
+                on_release: app.root.play_file(file_chooser.selection[0])
+                on_release: root.dismiss()
+        FileChooserIconView:
+            id: file_chooser
+            size_hint_y: .95
+<OpenFolder@ModalView>:
+    size_hint: (.9,.9)
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            id: chosen_file
+            size_hint_y: .05
+            TextInput:
+                id: choose_file
+                size_hint_x: .8
+                text: file_chooser.path
+            Button:
+                id: submit
+                text: 'Open File'
+                size_hint_x: .2
+                on_release: app.root.play_folder(file_chooser.path)
+                on_release: root.dismiss()
+        FileChooserIconView:
+            id: file_chooser
+            size_hint_y: .95
+<FlatButton@ButtonBehavior+Label>:
+    color: (0,0,0, 1)
+
+<PlayerWindow>:
+    id: main_win
+    orientation: 'vertical'
+    PageLayout:
+        id: pages
+        border: 10
+
+        BoxLayout:
+            id: media_page
+            orientation: 'vertical'
+            spacing: 8
+
+            BoxLayout:
+                id: top_nav
+                size_hint_y: None
+                height: 35
+                canvas.before:
+                    Color:
+                        rgba: (.6,.6,.6, 1)
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+
+                FlatButton:
+                    id: file_trigger
+                    text: 'File'
+                    size_hint: (.1,None)
+                    height: 30
+                    on_release: file_dropdown.open(self)
+
+                    Widget:
+                        on_parent: file_dropdown.dismiss()
+
+                        DropDown:
+                            id: file_dropdown
+
+                            Button:
+                                id: open_vid
+                                text: 'Open File'
+                                size_hint_y: None
+                                height: 30
+                                background_normal: ''
+                                background_color: (0,0,0, .6)
+                                on_release: Factory.OpenFile().open(self)
+                            Button:
+                                id: open_folder
+                                text: 'Open Folder'
+                                size_hint_y: None
+                                height: 30
+                                background_normal: ''
+                                background_color: (0,0,0, .6)
+                                on_release: Factory.OpenFolder().open(self)
+                Label:
+                    id: title
+                    text: 'Media Player'
+                    size_hint: (.8,None)
+                    height: 30
+
+                FlatButton:
+                    id: more_trigger
+                    text: 'More'
+                    size_hint: (.1,None)
+                    height: 30
+                    on_release: more_dropdown.open(self)
+
+                    Widget:
+                        on_parent: more_dropdown.dismiss()
+
+                        DropDown:
+                            id: more_dropdown
+
+                            Button:
+                                id: about
+                                text: 'About'
+                                size_hint_y: None
+                                height: 30
+                                background_normal: ''
+                                background_color: (0,0,0, .6)
+                                on_release: Factory.AboutView().open(self)
+                            Button:
+                                id: credits
+                                text: 'Credits'
+                                size_hint_y: None
+                                height: 30
+                                background_normal: ''
+                                on_release: Factory.CreditView().open(self)
+                                background_color: (0,0,0, .6)
+            FloatLayout:
+                id: media_container
+                size_hint: (1,.85)
+                Video:
+                    id: cur_vid
+                    source: 'assets/default_texture.png'
+                    allow_stretch: True
+                    options: {'eos': 'loop'}
+                    volume: volume.value
+                BoxLayout:
+                    id: bottom_controls
+                    orientation: 'vertical'
+                    size_hint_y: None
+                    height: 55
+                    canvas.before:
+                        Color:
+                            rgba: (0,0,0, .4)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+                    BoxLayout:
+                        id: vid_progress
+                        spacing: 5
+                        pos_hint: {'y': 0}
+                        Label:
+                            id: cur_pos
+                            text: str(round(cur_vid.position/60,2))
+                            size_hint_x: .05
+                        Slider:
+                            id: cur_vid_progress
+                            min: 0
+                            max: float(duration.text)
+                            value: round(cur_vid.position/60,2)
+                            size_hint_x: .9
+                            on_value: root.update_position(self)
+                            cursor_size: (0,0)
+                            value_track: True
+                            value_track_color: (.4,.4,.4,1)
+                        Label:
+                            id: duration
+                            text: str(round(cur_vid.duration/60,2))
+                            size_hint_x: .05
+
+                    AnchorLayout:
+                        anchor_x: 'center'
+                        anchor_y: 'bottom'
+                        BoxLayout:
+                            id: controls
+                            size_hint: (.4,None)
+                            height: 30
+                            spacing: 5
+
+                            Button:
+                                id: stop
+                                text: '%s'%(icon('zmdi-stop',32))
+                                markup: True
+                                on_release: cur_vid.state = 'stop'
+                                size_hint_x: .1
+                            Button:
+                                id: previous
+                                text: '%s'%(icon('zmdi-skip-previous',32))
+                                markup: True
+                                size_hint_x: .1
+                                on_release: root.play_prev()
+                            Button:
+                                id: backward
+                                text: '%s'%(icon('zmdi-fast-rewind',32))
+                                markup: True
+                                size_hint_x: .1
+                                on_release: cur_vid.seek((((cur_vid_progress.value/cur_vid_progress.max)*100)/100)-.1)
+                            ToggleButton:
+                                id: play
+                                text: '%s'%(icon('zmdi-play',32)) if cur_vid.state != 'play' else '%s'%(icon('zmdi-pause',32))
+                                markup: True
+                                size_hint_x: .1
+                                on_state: root.play_pause()
+                            Button:
+                                id: forward
+                                text: '%s'%(icon('zmdi-fast-forward',32))
+                                markup: True
+                                size_hint_x: .1
+                                on_release: cur_vid.seek((((cur_vid_progress.value/cur_vid_progress.max)*100)/100)+.1)
+                            Button:
+                                id: next
+                                text: '%s'%(icon('zmdi-skip-next',32))
+                                markup: True
+                                size_hint_x: .1
+                                on_release: root.play_next()
+                                
+                            Slider:
+                                id: volume
+                                min: 0
+                                max: 1
+                                size_hint_x: .4
+                                cursor_size: (15,15)
+                                cursor_image: 'atlas://data/images/defaulttheme/button'
+                                # on_value: title.text = str(self.value)
+        BoxLayout:
+            id: playlist_page
+            orientation: 'vertical'
+            Label:
+                text: 'Current Playlist'
+                size_hint_y: None
+                height: 30
+            RecycleView:
+                id: list_container
+                viewclass: 'ListEntry'
+                RecycleBoxLayout:
+                    id: list_entries
+                    default_size: (None,250)
+                    default_size_hint: (1,None)
+                    size_hint_y: None
+                    height: self.minimum_height
+                    orientation: 'vertical'
+                    spacing: 5
+                    canvas.before:
+                        Color:
+                            rgba: (0,0,0, 1)
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
+<ListEntry@ButtonBehavior+BoxLayout>:
+    vid_name: ''
+    vid_path: ''
+    real_path: ''
+    size_hint_y: None
+    on_release: app.root.play_file(self.real_path)
+    Label:
+        id: name
+        text: root.vid_name
+        canvas.before:
+            Color:
+                rgba: (.4,.4,.4, 1)
+            Rectangle:
+                pos: self.pos
+                size: self.size
+    Label:
+        id: vpath
+        text: root.vid_path
+        canvas.before:
+            Color:
+                rgba: (.7,.7,.7, .9)
+            Rectangle:
+                pos: self.pos
+                size: self.size
